@@ -102,7 +102,7 @@ function handleGet(ctx){
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .send(ar=>{
-        normalResponseHander(response,ar);
+        normalResponseHandler(response,ar);
       });
 }
 
@@ -113,7 +113,7 @@ function handlePost(ctx){
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
-        normalResponseHander(response,ar);
+        normalResponseHandler(response,ar);
       });
 }
 
@@ -124,7 +124,7 @@ function handlePut(ctx){
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
-        normalResponseHander(response,ar);
+        normalResponseHandler(response,ar);
       });
 }
 
@@ -135,7 +135,7 @@ function handleDelete(ctx){
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
-        normalResponseHander(response,ar);
+        normalResponseHandler(response,ar);
       });
 }
 
@@ -146,7 +146,7 @@ function buildQueryParam(req,params){
   });
 }
 
-function normalResponseHander(response,ar){
+function normalResponseHandler(response,ar){
   if(ar.failed()){
     console.log(ar.cause());
     response.setStatusCode(500).end('' + ar.cause());
