@@ -14,6 +14,7 @@ const remoteHost = 'polyglot.net.cn';
 // const remoteHost = '192.168.89.1';
 const remotePort = 80;
 const remoteApiBasePath = '/';
+const defaultCharset = 'UTF-8';
 //----- error msg ---
 const errorMSG = "Container Error";
 const methodNotSupport = "http method not Supported";
@@ -26,14 +27,14 @@ const localProxyClient = WebClient.create(vertx);
 router.route().handler(BodyHandler.create().handle);
 //预先处理请求(是静态资源还是ajax请求)
 preHandleRequest(router);
-router.route(staticResourcePath+'/*').handler(StaticHandler.create());
+router.route(staticResourcePath+'/*').handler(StaticHandler.create().setDefaultContentEncoding(defaultCharset));
 router.route(ajaxReqPathPrefix + '/*').handler(ajaxRequestHandler);
 router.route().failureHandler(failureHandler);
 router.errorHandler(500,errorHandler);
 
 vertx.createHttpServer()
-  .requestHandler(router)
-  .listen(localServerPort);
+    .requestHandler(router)
+    .listen(localServerPort);
 console.log("static&proxy started at port:" + localServerPort);
 
 function preHandleRequest(router){
@@ -71,19 +72,19 @@ function ajaxRequestHandler(ctx){
   switch(method){
     case HttpMethod.GET:
       handleGet(ctx);
-    break;
-  
+      break;
+
     case HttpMethod.POST:
-        handlePost(ctx);
-    break;
+      handlePost(ctx);
+      break;
 
     case HttpMethod.PUT:
-        handlePut(ctx);
-    break;
+      handlePut(ctx);
+      break;
 
     case HttpMethod.DELETE:
-        handleDelete(ctx);
-    break;
+      handleDelete(ctx);
+      break;
 
     default:
       handleNotSupportMethod(ctx);
@@ -100,9 +101,9 @@ function handleGet(ctx){
   let req = localProxyClient.get(remotePort,remoteHost,remoteApiBasePath);
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
-    .send(ar=>{
-      normalResponseHander(response,ar);
-    });
+      .send(ar=>{
+        normalResponseHander(response,ar);
+      });
 }
 
 function handlePost(ctx){
@@ -111,9 +112,9 @@ function handlePost(ctx){
   let req = localProxyClient.post(remotePort,remoteHost,remoteApiBasePath);
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
-  .sendJson(ctx.getBodyAsJson(),ar=>{
-    normalResponseHander(response,ar);
-  });
+      .sendJson(ctx.getBodyAsJson(),ar=>{
+        normalResponseHander(response,ar);
+      });
 }
 
 function handlePut(ctx){
@@ -122,9 +123,9 @@ function handlePut(ctx){
   let req = localProxyClient.put(remotePort,remoteHost,remoteApiBasePath);
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
-  .sendJson(ctx.getBodyAsJson(),ar=>{
-    normalResponseHander(response,ar);
-  });
+      .sendJson(ctx.getBodyAsJson(),ar=>{
+        normalResponseHander(response,ar);
+      });
 }
 
 function handleDelete(ctx){
@@ -133,9 +134,9 @@ function handleDelete(ctx){
   let req = localProxyClient.delete(remotePort,remoteHost,remoteApiBasePath);
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
-  .sendJson(ctx.getBodyAsJson(),ar=>{
-    normalResponseHander(response,ar);
-  });
+      .sendJson(ctx.getBodyAsJson(),ar=>{
+        normalResponseHander(response,ar);
+      });
 }
 
 //处理url参数
@@ -156,7 +157,7 @@ function normalResponseHander(response,ar){
     let statusMsg = resps.statusMessage();
     let headers = resps.headers();
     let trailers = resps.trailers();
-    let bodyAsString = resps.bodyAsString(); 
+    let bodyAsString = resps.bodyAsString();
     console.log("==========================================")
     console.log("got response from remote server:");
     console.log("statusCode: "+statusCode);
