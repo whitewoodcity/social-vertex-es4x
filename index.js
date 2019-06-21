@@ -92,7 +92,7 @@ function ajaxRequestHandler(ctx){
 }
 function handleNotSupportMethod(ctx){
   console.log("in default");
-  ctx.response.setStatusCode(500).end(methodNotSupport);
+  ctx.response().setStatusCode(500).end(methodNotSupport);
 }
 
 function handleGet(ctx){
