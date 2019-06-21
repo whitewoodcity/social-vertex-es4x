@@ -10,9 +10,9 @@ const indexReg =['/','/index.htm','/index'];
 const staticResourcePath = '/assets';
 const ajaxReqPathPrefix = '/api';
 const localServerPort = 8090;
-const remoteHost = 'polyglot.net.cn';
-// const remoteHost = '192.168.89.1';
-const remotePort = 80;
+// const remoteHost = 'polyglot.net.cn';
+const remoteHost = '192.168.89.1';
+const remotePort = 8090;
 const remoteApiBasePath = '/';
 const defaultCharset = 'UTF-8';
 //----- error msg ---
@@ -98,7 +98,7 @@ function handleNotSupportMethod(ctx){
 function handleGet(ctx){
   let request = ctx.request();
   let response = ctx.response();
-  let req = localProxyClient.get(remotePort,remoteHost,remoteApiBasePath);
+  let req = localProxyClient.get(remotePort,remoteHost,getURI(request.absoluteURI()));
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .send(ar=>{
@@ -109,7 +109,7 @@ function handleGet(ctx){
 function handlePost(ctx){
   let request = ctx.request();
   let response = ctx.response();
-  let req = localProxyClient.post(remotePort,remoteHost,remoteApiBasePath);
+  let req = localProxyClient.post(remotePort,remoteHost,getURI(request.absoluteURI()));
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
@@ -120,7 +120,7 @@ function handlePost(ctx){
 function handlePut(ctx){
   let request = ctx.request();
   let response = ctx.response();
-  let req = localProxyClient.put(remotePort,remoteHost,remoteApiBasePath);
+  let req = localProxyClient.put(remotePort,remoteHost,getURI(request.absoluteURI()));
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
@@ -131,7 +131,7 @@ function handlePut(ctx){
 function handleDelete(ctx){
   let request = ctx.request();
   let response = ctx.response();
-  let req = localProxyClient.delete(remotePort,remoteHost,remoteApiBasePath);
+  let req = localProxyClient.delete(remotePort,remoteHost,getURI(request.absoluteURI()));
   buildQueryParam(req,request.params());
   req.putHeaders(request.headers())
       .sendJson(ctx.getBodyAsJson(),ar=>{
@@ -148,8 +148,8 @@ function buildQueryParam(req,params){
 
 function normalResponseHander(response,ar){
   if(ar.failed()){
-    console.log(ar.cause);
-    response.setStatusCode(500).end('' + ar.cause);
+    console.log(ar.cause());
+    response.setStatusCode(500).end('' + ar.cause());
   }else{
     let resps = ar.result();
     //================================
@@ -179,4 +179,14 @@ function normalResponseHander(response,ar){
     response.setStatusMessage(statusMsg);
     response.end(bodyAsString);
   }
+}
+
+function getURI(absUri){
+  //http://localhost:8090/api?param1=123&parama2=fh3h9fh
+  //根据？分割absUri 获取无参数的uri
+  let uriWithourParam = absUri.split('?')[0];
+  let i = uriWithourParam.indexOf(ajaxReqPathPrefix) + ajaxReqPathPrefix.length + 1;
+  let finalUri = uriWithourParam.substr(i)
+  console.log(remoteApiBasePath + finalUri);
+  return remoteApiBasePath + finalUri;
 }
